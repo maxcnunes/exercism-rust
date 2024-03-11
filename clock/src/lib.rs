@@ -10,8 +10,8 @@ const DAY_MINUTES: i32 = 60 * 24;
 
 impl Display for Clock {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let h = self.minutes / 60;
-        let m = self.minutes - (h * 60);
+        let h = self.minutes / HOUR_MINUTES;
+        let m = self.minutes - (h * HOUR_MINUTES);
 
         write!(f, "{:02}:{:02}", h, m)
     }
