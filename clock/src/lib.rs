@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Clock {
     minutes: i32,
 }
