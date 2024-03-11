@@ -13,19 +13,7 @@ impl Display for Clock {
             h = h % 24;
         }
 
-        let mut time = "".to_string();
-
-        if h < 10 {
-            time += "0";
-        }
-        time += &format!("{}:", h).to_string();
-
-        if m < 10 {
-            time += "0";
-        }
-        time += &format!("{}", m).to_string();
-
-        write!(f, "{}", time)
+        write!(f, "{:02}:{:02}", h, m)
     }
 }
 
