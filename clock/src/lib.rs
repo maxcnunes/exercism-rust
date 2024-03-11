@@ -5,6 +5,9 @@ pub struct Clock {
     minutes: i32,
 }
 
+const HOUR_MINUTES: i32 = 60;
+const DAY_MINUTES: i32 = 60 * 24;
+
 impl Display for Clock {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let h = self.minutes / 60;
@@ -25,13 +28,11 @@ impl Clock {
     }
 
     pub fn add_time(mut self, hours: i32, minutes: i32) -> Self {
-        let mut m = (hours * 60) + minutes + self.minutes;
+        let mut m = (hours * HOUR_MINUTES) + minutes + self.minutes;
 
-        let full_day_minutes = 60 * 24;
-
-        m = m % full_day_minutes;
+        m = m % DAY_MINUTES;
         if m < 0 {
-            m = full_day_minutes + m;
+            m = DAY_MINUTES + m;
         }
 
         self.minutes = m;
