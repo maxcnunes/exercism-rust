@@ -5,7 +5,7 @@ use std::thread;
 type Frequency = HashMap<char, usize>;
 
 pub fn frequency(input: &[&str], worker_count: usize) -> Frequency {
-    frequency_v2(input, worker_count)
+    frequency_v4(input, worker_count)
 }
 
 // Simplified version without Arc and Mutex, and using thread scope instead
@@ -44,6 +44,64 @@ pub fn frequency_v2(input: &[&str], worker_count: usize) -> Frequency {
                 *entry += count;
             }
         }
+
+        freq
+    })
+}
+
+// Third version, more functional approach
+pub fn frequency_v3(input: &[&str], worker_count: usize) -> Frequency {
+    thread::scope(|s| {
+        if input.is_empty() || worker_count == 0 {
+            return HashMap::new();
+        }
+
+        let mut freq = Frequency::new();
+        let chunk_size = input.len() / worker_count + 1;
+
+        let mut handles = input
+            .chunks(chunk_size)
+            .map(|chunk| s.spawn(|| count_frequency(chunk)))
+            .collect::<Vec<thread::ScopedJoinHandle<_>>>();
+
+        handles
+            .drain(..)
+            .map(|h| h.join().expect("Couldn't join handler"))
+            .flat_map(|freq| freq.into_iter())
+            .for_each(|(c, count)| {
+                freq.entry(c)
+                    .and_modify(|total| *total += count)
+                    .or_insert(count);
+            });
+
+        freq
+    })
+}
+
+// Forth version, functional approach all in single chain flow
+pub fn frequency_v4(input: &[&str], worker_count: usize) -> Frequency {
+    thread::scope(|s| {
+        if input.is_empty() || worker_count == 0 {
+            return HashMap::new();
+        }
+
+        // Calculate the rounded-up division result
+        let chunk_size = input.len() / worker_count + 1;
+
+        let mut freq = Frequency::new();
+
+        input
+            .chunks(chunk_size)
+            .map(|chunk| s.spawn(|| count_frequency(chunk)))
+            .collect::<Vec<thread::ScopedJoinHandle<_>>>()
+            .drain(..)
+            .map(|h| h.join().expect("Couldn't join handler"))
+            .flat_map(|freq| freq.into_iter())
+            .for_each(|(c, count)| {
+                freq.entry(c)
+                    .and_modify(|total| *total += count)
+                    .or_insert(count);
+            });
 
         freq
     })
